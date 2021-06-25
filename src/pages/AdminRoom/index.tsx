@@ -10,6 +10,8 @@ import { Question } from '../../components/Question'
 import { useRoom } from '../../hooks/useRoom'
 import deleteButtonImg from '../../assets/images/delete.svg'
 import { useHistory } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
+import { useEffect } from 'react'
 
 type RoomParams = {
   id: string
@@ -18,7 +20,7 @@ type RoomParams = {
 export function AdminRoom(){
   const params = useParams<RoomParams>()
   const roomCode = params.id
-  const { title, questions } = useRoom(roomCode)
+  const { title, questions, author } = useRoom(roomCode)
   const history = useHistory()
 
   async function handleEndRoom() {
@@ -45,6 +47,21 @@ export function AdminRoom(){
     await database.ref(`rooms/${roomCode}/questions/${idQuestion}`).update({
       isHighlighted: true
     })
+  }
+
+  const { user } = useAuth()
+
+  useEffect(() => {
+    if(user && author){
+      if (user?.id !== author) {
+        alert('Voce nao é o admin dessa pagina')
+        history.push(`/`)
+      }
+    }
+  }, [author])
+
+  if(!user || !author){
+    return <h1>Validando credenciais...</h1>
   }
 
   return (

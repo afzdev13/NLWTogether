@@ -6,12 +6,12 @@ import logoImg from '../../assets/images/logo.svg'
 import '../../styles/pages/room.scss'
 import Button from '../../components/Button/'
 import { useAuth } from '../../hooks/useAuth'
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { database } from '../../services/firebase'
 
 export function NewRoom() {
 
-  const { user } = useAuth()
+  const { user, isLoadingUser } = useAuth()
   const [newRoom, setNewRoom] = useState('')
   const history = useHistory()
   async function createNewRoom(event: FormEvent) {
@@ -26,7 +26,16 @@ export function NewRoom() {
       authorId: user?.id
     })
 
-    history.push(`/rooms/${firebaseRoom.key}`)
+    history.push(`/admin/rooms/${firebaseRoom.key}`)
+  }
+  useEffect(() => {
+    if(!isLoadingUser && !user){      
+      history.push(`/`)
+    }
+  }, [])
+
+  if(isLoadingUser){
+    return <h1>Carregando...</h1>
   }
 
   return (
